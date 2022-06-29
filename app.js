@@ -7,11 +7,19 @@ var colores = [
     [1, 2, 3, 1, 2]
 ]
 
+var letras = [
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""]
+]
+
 function pintarTablero () {
     for (let iFila = 0; iFila < 6; iFila++) {
         for (let iCelda= 0; iCelda < 5; iCelda++) {
            var input= document.getElementById(iFila + ',' + iCelda)
-           console.log(colores[iFila][iCelda])
            switch (colores[iFila][iCelda]) {
                 case 0:
                    input.className = "color-blanco";
@@ -31,7 +39,21 @@ function pintarTablero () {
         }
     }
 }
+
+function inicio () {
+    for (let iFila = 0; iFila < 6; iFila++) {
+        for (let iCelda= 0; iCelda < 5; iCelda++) {
+            var input = document.getElementById(iFila + ',' + iCelda)
+            input.oninput = function(e) {
+                letras[iFila][iCelda] = e.target.value;
+            }
+            var fieldset = document. 
+        }        
+    }
+}
+
+
  window.onload = function () {
      pintarTablero();
-     
+     inicio();
  }
