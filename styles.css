@@ -1,0 +1,59 @@
+ * {
+     color: grey;
+     font-family: "Open Sans", sans-serif;
+     box-sizing: border-box;
+     margin: 0;
+ }
+
+ body {
+     background-color: plum;
+ }
+
+ h1,
+ h2,
+ h3 {
+     font-family: "Lora", serif;
+ }
+
+ .contenedor-juego {
+     height: 98vh;
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+     align-items: center;
+ }
+
+ .contenedor-titulo {
+     text-align: center;
+     width: 100%;
+     max-width: 510px;
+     padding-bottom: 5px;
+     border-bottom: 1px solid black;
+ }
+
+ .contenedor-titulo h1 {
+     margin: 10px;
+ }
+
+ .contenedor-titulo nav ul {
+     display: flex;
+     justify-content: space-between;
+     padding: 0;
+     margin: 0;
+ }
+
+ .contenedor-titulo nav ul li {
+     padding: 5px 10px;
+     cursor: pointer;
+     list-style: none;
+ }
+
+ nav ul li a {
+     text-decoration: none;
+ }
+
+ nav ul li:hover {
+     background-color: cornflowerblue;
+     padding: 5px 10px;
+     border-radius: 4px;
+ }
