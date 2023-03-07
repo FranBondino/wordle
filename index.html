@@ -5,32 +5,44 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="style/style.css" />
-    <title>Final LPPA: Wordle Game</title>
+    <title>Wordle App</title>
 </head>
 
 <body>
-    <main>
-        <div class="contenedor-juego">
-            <div class="contenedor-titulo">
-                <h1> Wordle </h1>
-                <nav>
-                    <ul>
-                        <li><a href="" id="jugar">Jugar</a></li>
-                        <li><a href="" id="cargar">Cargar Juego</a></li>
-                        <li><a href="" id="guardar">Guardar Juego</a></li>
-                    </ul>
-                </nav>
-            </div>
-            <div class="contenedor-jugador"></div>
-
-            <div class="contenedor-mensaje"></div>
-
-            <div class="contenedor-box"></div>
-
-            <div class="contenedor-teclado"></div><br>
+    <div class="contenedor-juego">
+        <div class="contenedor-titulo">
+            <h1>Wordle Game</h1>
+            <button>Jugar</button>
         </div>
+        <div class="contenedor-jugador"></div>
+
+        <div class="conteendor-mensaje"></div>
+
+        <div class="contenedor-caja"></div>
+
+        <div class="contenedor-teclado"></div>
+    </div>
+
+    <div class="contenedor-modal">
+        <div class="modal">
+            <div class="bienvenida">
+                <h2>Bienvenido a Wordle Game</h2>
+                <p>
+                    Escribe tu nombre para asi poderguardar los cambios, al empezar el
+                    juego se iniciará un contador que marcará tu tiempo de juego.
+                </p>
+            </div>
+            <div class="registro">
+                <label for="jugador">Ingresa tu nombre:</label>
+                <input type="text" name="nombre" id="jugador" />
+                <button id="empezar">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app/app.js"></script>
 </body>
-<script src="./app.js"></script>
 
 </html>
