@@ -4,8 +4,11 @@ const displayCajas = document.querySelector(".contenedor-caja");
 const modal = document.querySelector(".contenedor-modal");
 const teclado = document.querySelector(".contenedor-teclado");
 let jugador = {
-    name: "",
+    nombre: "",
     tablero: [],
+    wordle: "",
+    fecha: new Date().getTime(),
+    tiempo: "",
 };
 let listaPalabras = [];
 let wordle = "";
@@ -148,10 +151,10 @@ const verificarFila = () => {
     if (cajaActual > 4) {
         const adivinaUsuario = intentosFilas[filaActual].join("");
         jugador.tablero.push(adivinaUsuario);
-        console.log(jugador.tablero);
-        resaltarCajas();
+        resaltarCajas(filaActual);
         if (adivinaUsuario === wordle) {
             mostrarMensaje("Excelente, has ganado! 🎉", true);
+            eliminarJuegoGuardado(jugador.fecha);
             clearInterval(contadorCall);
             juegoTerminado = true;
             return;
@@ -160,9 +163,9 @@ const verificarFila = () => {
                 let contadorDisplay = document.getElementById("contador");
                 mostrarMensaje("Que pena, perdiste! 😞", true);
                 clearInterval(contadorCall);
-                juegoTerminado = true;
                 let respuesta = `<p>El wordle era ${wordle}</p>`;
                 displayJugador.insertAdjacentHTML("beforeend", respuesta);
+                juegoTerminado = true;
                 return;
             }
             if (filaActual < 5) {
@@ -172,23 +175,18 @@ const verificarFila = () => {
         }
     }
 };
-
-
 const mostrarMensaje = (mensaje, permanente = false) => {
     displayMensaje.innerHTML = "";
     const elementoMensaje = document.createElement("p");
     elementoMensaje.innerText = mensaje;
     displayMensaje.append(elementoMensaje);
-
     if (!permanente) {
         setTimeout(() => {
             displayMensaje.removeChild(elementoMensaje);
         }, 2500);
     }
 };
-
-
-const resaltarCajas = () => {
+const resaltarCajas = (filaActual) => {
     const cajasDeFila = document.getElementById(
         `intentoFila-${filaActual}`
     ).childNodes;
@@ -222,11 +220,9 @@ const resaltarCajas = () => {
         }, 250 * index);
     });
 };
-
 const contador = () => {
     const contadorDisplay = document.getElementById("contador");
     segundos++;
-
     if (segundos < 10) segundos = `0` + segundos;
     if (segundos > 59) {
         segundos = `00`;
@@ -238,63 +234,166 @@ const contador = () => {
         horas++;
         if (horas < 10) horas = `0` + horas;
     }
-
     contadorDisplay.innerHTML = `${horas}:${minutos}:${segundos}`;
 };
-
-const btnJugar = document.querySelector(".titulo-container button");
-btnJugar.addEventListener("click", () => {
-    if (jugador.name == "") {
+const iniciarContador = (h = `00`, m = `00`, s = `00`) => {
+    let contadorDisplay = document.getElementById("contador");
+    horas = h;
+    minutos = m;
+    segundos = s;
+    if (!contadorDisplay) {
+        contadorDisplay = document.createElement("p");
+        contadorDisplay.setAttribute("id", "contador");
+    }
+    displayJugador.insertAdjacentElement("beforeend", contadorDisplay);
+    contadorCall = setInterval(contador, 1000);
+};
+const btnJugar = document.querySelector("#jugar");
+btnJugar.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (!jugador.nombre) {
         modal.style.display = "flex";
     } else {
-        clearInterval(contadorCall);
-        horas = `00`;
-        minutos = `00`;
-        segundos = `00`;
-        contadorCall = setInterval(contador, 1000);
-        displayMensaje.innerHTML = "";
-        if (displayJugador.childNodes.length == 3) {
-            displayJugador.removeChild(displayJugador.lastChild());
-        }
+        filaActual = 0;
+        cajaActual = 0;
+        jugador.tablero = [];
+        wordle = obtenerPalabra();
         iniciarWordle();
         generarTeclado(true);
+        displayJugador.innerHTML = `<p>¡Mucha suerte, ${jugador.nombre}!</p>`;
+        clearInterval(contadorCall);
+        juegoTerminado = false;
+        iniciarContador();
+        displayMensaje.innerHTML = "";
+        console.log(displayJugador.childNodes.length);
+        if (displayJugador.childNodes.length > 2) {
+            displayJugador.removeChild(displayJugador.lastChild());
+        }
     }
 });
 
 const btnEmpezarJuego = document.getElementById("empezar");
 btnEmpezarJuego.addEventListener("click", () => {
     const nombre = document.querySelector(".registro input");
-    jugador.name = nombre.value;
-
-    if (jugador.name != "") {
+    jugador.nombre = nombre.value;
+    if (jugador.nombre) {
         displayJugador.innerHTML = "";
         let contadorDisplay = document.getElementById("contador");
         clearInterval(contadorCall);
-
-        horas = `00`;
-        minutos = `00`;
-        segundos = `00`;
-        if (!contadorDisplay) {
-            contadorDisplay = document.createElement("p");
-            contadorDisplay.setAttribute("id", "contador");
-        }
-        displayJugador.insertAdjacentElement("afterbegin", contadorDisplay);
-
-        contadorCall = setInterval(contador, 1000);
-
+        iniciarContador();
         displayJugador.insertAdjacentHTML(
             "afterbegin",
-            `<p>¡Mucha suerte, ${jugador.name}!</p>`
+            `<p>¡Mucha suerte, ${jugador.nombre}!</p>`
         );
-
+        iniciarWordle();
         generarTeclado(true);
         modal.style.display = "none";
         nombre.value = "";
     }
 });
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
     wordle = obtenerPalabra();
     iniciarWordle();
     generarTeclado();
 });
+
+const guardarJuego = (jugador) => {
+    let juegosGuardados = localStorage.getItem("juegosGuardados")
+        ? JSON.parse(localStorage.getItem("juegosGuardados"))
+        : [];
+    console.log(juegosGuardados);
+    if (juegoTerminado) {
+        mostrarMensaje("Este juego no se puede guardar porque ya ha terminado.");
+    } else {
+        jugador.wordle = btoa(wordle);
+        clearInterval(contadorCall);
+        jugador.tiempo = `${horas}:${minutos}:${segundos}`;
+        juegosGuardados.push(jugador);
+        localStorage.setItem("juegosGuardados", JSON.stringify(juegosGuardados));
+        iniciarWordle();
+        generarTeclado();
+        mostrarMensaje("Juego guardado correctamente.");
+    }
+};
+
+const cargarJuego = () => {
+    const juegosGuardados = JSON.parse(localStorage.getItem("juegosGuardados"));
+    if (!juegosGuardados || juegosGuardados.length == 0) {
+        mostrarMensaje("No hay ningún juego guardado");
+    } else {
+        console.log(juegosGuardados);
+        clearInterval(contadorCall);
+        generarTeclado(true);
+
+        renderJuegosGuardados(juegosGuardados);
+    }
+};
+
+const guardar = document.getElementById("guardar");
+cargar.addEventListener("click", (e) => {
+    e.preventDefault();
+    cargarJuego();
+});
+
+function renderJuegosGuardados(juegosGuardados) {
+    const listaContainer = document.querySelector(".lista-container");
+    if (listaContainer) listaContainer.remove();
+    const guardadosContainer = document.createElement("div");
+    guardadosContainer.classList.add("lista-container");
+
+    const listaGuardados = document.createElement("div");
+    listaGuardados.classList.add("lista-juegos");
+
+    const h2 = `<h2>Juegos guardados</h2>`;
+    guardadosContainer.insertAdjacentHTML("afterbegin", h2);
+
+    juegosGuardados.forEach((juego) => {
+        const p = document.createElement("p");
+        p.classList.add("juego-guardado");
+        p.innerHTML = `${juego.nombre} - ${new Date(juego.fecha).toLocaleDateString(
+            "es",
+            { year: "numeric", month: "short", day: "numeric" }
+        )}<br /><span>${juego.tablero}</span>`;
+
+        p.addEventListener("click", () => {
+            jugador = juego;
+            clearInterval(contadorCall);
+            iniciarWordle();
+            wordle = atob(juego.wordle);
+            horas = juego.tiempo.split(":")[0];
+            minutos = juego.tiempo.split(":")[1];
+            segundos = juego.tiempo.split(":")[2];
+            for (let i = 0; i < juego.tablero.length; i++) {
+                filaActual = i;
+                const palabra = juego.tablero[i];
+                const letras = palabra.split("");
+                for (let j = 0; j < letras.length; j++) {
+                    cajaActual = j;
+                    ponerLetra(letras[j]);
+                }
+                resaltarCajas(filaActual);
+            }
+            jugador.tablero = [];
+            verificarFila();
+
+            guardadosContainer.style.display = "none";
+            displayJugador.innerHTML = "";
+            displayJugador.innerHTML = `<p>¡Mucha suerte, ${juego.nombre}!</p>`;
+            iniciarContador(horas, minutos, segundos);
+        });
+
+        listaGuardados.insertAdjacentElement("beforeend", p);
+    });
+    modal.insertAdjacentElement("afterend", guardadosContainer);
+    guardadosContainer.insertAdjacentElement("beforeend", listaGuardados);
+    guardadosContainer.style.display = "flex";
+}
+
+function eliminarJuegoGuardado(fecha) {
+    let juegosGuardados = JSON.parse(localStorage.getItem("juegosGuardados"));
+    if (juegosGuardados) {
+        const juegos = juegosGuardados.filter((juego) => fecha !== juego.fecha);
+        localStorage.setItem("juegosGuardados", JSON.stringify(juegos));
+    }
+}
